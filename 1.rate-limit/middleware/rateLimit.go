@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,13 +13,9 @@ type IPRequestCount struct {
 }
 
 var ipRates = map[string]*IPRequestCount{}
-var mu sync.Mutex
 
 func RateLimitCheck(c *gin.Context) {
 	ip := c.ClientIP()
-
-	mu.Lock()
-	defer mu.Unlock()
 
 	now := time.Now().Unix()
 	tracker, ok := ipRates[ip]
