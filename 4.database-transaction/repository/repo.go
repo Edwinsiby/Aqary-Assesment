@@ -11,6 +11,10 @@ var (
 	err error
 )
 
+func BeginTransaction() (*gorm.DB, error) {
+	return db.Begin(), nil
+}
+
 func FindSchool(studentID string) (School, error) {
 	var school School
 	if err := db.Where("student_id = ?", studentID).First(&school).Error; err != nil {

@@ -11,16 +11,27 @@ var (
 )
 
 func AddStudentData(userID string, input models.StudentData) error {
+	tx, err := repository.BeginTransaction()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+		}
+	}()
 
 	total := input.EnglishMark + input.MathsMark
 
 	schoolData, err := repository.FindSchool(input.StudentID)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
 	admissionNo, err := repository.FindAdmissionNo(schoolData.SchoolID, schoolData.StudentID)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
@@ -31,6 +42,7 @@ func AddStudentData(userID string, input models.StudentData) error {
 		SchoolID:    schoolData.SchoolID,
 		TotalMark:   total,
 	}); err != nil {
+		tx.Rollback()
 		return err
 	}
 
@@ -40,16 +52,19 @@ func AddStudentData(userID string, input models.StudentData) error {
 		StateID:   schoolData.StateID,
 		TotalMark: total,
 	}); err != nil {
+		tx.Rollback()
 		return err
 	}
 
 	schoolTopScore, err := repository.FindTopScoreBySchool(schoolData.SchoolID)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
 	stateTopScore, err := repository.FindTopScoreByState(schoolData.StateID)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
@@ -59,6 +74,7 @@ func AddStudentData(userID string, input models.StudentData) error {
 			StudentID: input.StudentID,
 			TotalMark: total,
 		}); err != nil {
+			tx.Rollback()
 			return err
 		}
 	}
@@ -70,6 +86,7 @@ func AddStudentData(userID string, input models.StudentData) error {
 			StateID:   schoolData.StateID,
 			TotalMark: total,
 		}); err != nil {
+			tx.Rollback()
 			return err
 		}
 	}
@@ -79,6 +96,7 @@ func AddStudentData(userID string, input models.StudentData) error {
 			StudentID: input.StudentID,
 			SchoolID:  schoolData.SchoolID,
 		}); err != nil {
+			tx.Rollback()
 			return err
 		}
 	}
@@ -95,6 +113,7 @@ func AddStudentData(userID string, input models.StudentData) error {
 	}
 
 	if err = repository.UpdateStudentInfo(studentInfo); err != nil {
+		tx.Rollback()
 		return err
 	}
 
