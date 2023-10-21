@@ -9,5 +9,5 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.GET("user/data", handlers.AddStudentData)
+	router.POST("user/data", handlers.AddStudentData)
 }
